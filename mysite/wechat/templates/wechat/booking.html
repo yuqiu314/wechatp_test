@@ -1,0 +1,22 @@
+{% for order in orders %}
+<h1>step:{{ order.bookingstep }}, price:{{ order.price }}, room type:{{ order.roomtype }}</h1>
+<ul>
+{% for bid in bids %}
+    <li>bid price:{{ bid.price }}</li>
+{% endfor %}
+</ul>
+{% endfor %}
+
+<br>
+<br>
+<br>
+<label>price</label>
+<input/>
+<br>
+<input type="checkbox" />
+<label>1</label>
+<br>
+<input type="checkbox" />
+<label>2</label>
+<br>
+<button>send</button>
