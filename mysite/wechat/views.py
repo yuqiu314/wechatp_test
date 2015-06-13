@@ -20,7 +20,7 @@ import os
 logger = logging.getLogger('django')
 
 # Create your views here.
-def update_user(self, openid, nickname=None, phone=None, subscribe_date=None, 
+def update_user(openid, nickname=None, phone=None, subscribe_date=None, 
 			sex=None, subscribe=None, latitude=None, longitude=None):
 	if WechatUser.objects.filter(openid=openid).count() >= 1 :
 		u = WechatUser.objects.get(openid=openid)
@@ -43,7 +43,7 @@ def update_user(self, openid, nickname=None, phone=None, subscribe_date=None,
 	u.save()
 
 	
-def get_user_all(self):
+def get_user_all():
 	all_wechat_users = WechatUser.objects.all()
 	output = ', '.join([u.openid for u in all_wechat_users])
 	return output
