@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
-from django.shortcuts import render
-from django.http import HttpResponse
+from django.shortcuts import render,render_to_response
+from django.http import HttpResponse,HttpResponseRedirect
 from django.template import RequestContext, Template
 from django.views.decorators.csrf import csrf_exempt
 from django.utils import timezone
+from django import forms
 import json
 
 #from wechat_sdk import WechatBasic
@@ -109,6 +110,54 @@ def booking(request):
 	context = {'openid': openid, 'orders': orders, 'bids': bids}
 	return render(request, 'wechat/booking.html', context)
 
+class HotelForm(forms.Form):
+	loginame = forms.CharField(label=u'登录名', max_length=50)
+	password = forms.CharField(label=u'密码',widget=forms.PasswordInput())
+
+@csrf_exempt
+def hotelreg(request):
+	if request.method == 'POST':
+		uf = HotelForm(request.POST)
+		if uf.is_valid():
+			loginame = uf.cleaned_data['loginame']
+			password = uf.cleaned_data['password']
+			Hotel.objects.create(loginame= loginame,password=password)
+			return HttpResponse('regist success!!')
+	else:
+		uf = HotelForm()
+	return render_to_response('wechat/hotelreg.html',{'uf':uf}, context_instance=RequestContext(request))
+	
+@csrf_exempt
+def hotelogin(request):
+	if request.method=='POST':
+		uf=HotelForm(request.POST)
+		if uf.is_valid():
+			loginame = uf.cleaned_data['loginame']
+			password = uf.cleaned_data['password']
+			hotel = Hotel.objects.filter(loginame=loginame,password=password)
+			if hotel:
+				response = HttpResponseRedirect('/wechat/ordersforhotel/')
+				response.set_cookie('hotelogin',loginame,86400)
+				return response
+			else:
+				return HttpResponseRedirect('/wechat/hotelogin/')
+	else:
+		uf = HotelForm()
+	return render_to_response('wechat/hotelogin.html',
+				{'uf':uf},context_instance=RequestContext(request))
+
+@csrf_exempt
+def ordersforhotel(request):
+	hotelogin = request.COOKIES.get('hotelogin','')
+	hotel = Hotel.objects.get(loginame=hotelogin)
+	return render_to_response('wechat/ordersforhotel.html',{'hotelname':hotel.name})
+
+@csrf_exempt
+def hotelogout(request):
+	response = HttpResponse('logout!!')
+	response.delete_cookie('hotelogin')
+	return response
+	
 @csrf_exempt
 def test(request):
 	#return creatmenu(request)
@@ -123,7 +172,7 @@ def creatmenu(request):
 		'button':[
 		{
 			'type': 'view',
-			'name': '我要订房!',
+			'name': u'我要订房!',
 			'url': 'https://open.weixin.qq.com/connect/oauth2/authorize?appid=wx57a085415d1caaed&redirect_uri=http://ftpqy.vicp.net/wechat/booking/?action=viewtest&response_type=code&scope=snsapi_base&state=1#wechat_redirect'
 		},
 	]})

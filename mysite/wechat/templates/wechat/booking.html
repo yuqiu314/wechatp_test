@@ -1,4 +1,4 @@
-{% for order in orders %}
+﻿{% for order in orders %}
 <h1>step:{{ order.bookingstep }}, price:{{ order.price }}, room type:{{ order.roomtype }}</h1>
 <ul>
 {% for bid in bids %}
@@ -10,7 +10,7 @@
 <br>
 <br>
 <br>
-<label>price</label>
+<label>价格</label>
 <input/>
 <br>
 <input type="checkbox" />
@@ -19,4 +19,4 @@
 <input type="checkbox" />
 <label>2</label>
 <br>
-<button>send</button>
+<button>发送</button>
